@@ -193,9 +193,10 @@ public class BufferManager implements AutoCloseable {
 
         /**
          * Read from the buffer frame.
+         *
          * @param position position in buffer frame to start reading
-         * @param num number of bytes to read
-         * @param buf output buffer
+         * @param num      number of bytes to read
+         * @param buf      output buffer
          */
         @Override
         void readBytes(short position, short num, byte[] buf) {
@@ -213,9 +214,10 @@ public class BufferManager implements AutoCloseable {
 
         /**
          * Write to the buffer frame, and mark frame as dirtied.
+         *
          * @param position position in buffer frame to start writing
-         * @param num number of bytes to write
-         * @param buf input buffer
+         * @param num      number of bytes to write
+         * @param buf      input buffer
          */
         @Override
         void writeBytes(short position, short num, byte[] buf) {
@@ -234,7 +236,7 @@ public class BufferManager implements AutoCloseable {
                         byte[] before = Arrays.copyOfRange(contents, start + offset, start + offset + len);
                         byte[] after = Arrays.copyOfRange(buf, start, start + len);
                         long pageLSN = recoveryManager.logPageWrite(transaction.getTransNum(), pageNum, (short) (start + position), before,
-                                       after);
+                                after);
                         this.setPageLSN(pageLSN);
                     }
                 }
@@ -345,8 +347,8 @@ public class BufferManager implements AutoCloseable {
      * Creates a new buffer manager.
      *
      * @param diskSpaceManager the underlying disk space manager
-     * @param bufferSize size of buffer (in pages)
-     * @param evictionPolicy eviction policy to use
+     * @param bufferSize       size of buffer (in pages)
+     * @param evictionPolicy   eviction policy to use
      */
     public BufferManager(DiskSpaceManager diskSpaceManager, RecoveryManager recoveryManager,
                          int bufferSize, EvictionPolicy evictionPolicy) {
@@ -544,6 +546,7 @@ public class BufferManager implements AutoCloseable {
     /**
      * Calls flush on the frame of a page and unloads the page from the frame. If the page
      * is not loaded, this does nothing.
+     *
      * @param pageNum page number of page to evict
      */
     public void evict(long pageNum) {
@@ -587,6 +590,7 @@ public class BufferManager implements AutoCloseable {
 
     /**
      * Calls the passed in method with the page number of every loaded page.
+     *
      * @param process method to consume page numbers. The first parameter is the page number,
      *                and the second parameter is a boolean indicating whether the page is dirty
      *                (has an unflushed change).
@@ -608,6 +612,7 @@ public class BufferManager implements AutoCloseable {
      * Get the number of I/Os since the buffer manager was started, excluding anything used in disk
      * space management, and not counting allocation/free. This is not really useful except as a
      * relative measure.
+     *
      * @return number of I/Os
      */
     public long getNumIOs() {
@@ -615,6 +620,7 @@ public class BufferManager implements AutoCloseable {
     }
 
     public static boolean logIOs;
+
     private void incrementIOs() {
         if (logIOs) {
             System.out.println("IO incurred");
@@ -631,9 +637,10 @@ public class BufferManager implements AutoCloseable {
 
     /**
      * Wraps a frame in a page object.
+     *
      * @param parentContext parent lock context of the page
-     * @param pageNum page number
-     * @param frame frame for the page
+     * @param pageNum       page number
+     * @param frame         frame for the page
      * @return page object
      */
     private Page frameToPage(LockContext parentContext, long pageNum, Frame frame) {

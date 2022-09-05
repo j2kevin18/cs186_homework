@@ -19,11 +19,11 @@ import java.util.*;
  * inner node is serialized and persisted on a single page; see toBytes and
  * fromBytes for details on how an inner node is serialized. For example, here
  * is an illustration of an order 2 inner node:
- *
- *     +----+----+----+----+
- *     | 10 | 20 | 30 |    |
- *     +----+----+----+----+
- *    /     |    |     \
+ * <p>
+ * +----+----+----+----+
+ * | 10 | 20 | 30 |    |
+ * +----+----+----+----+
+ * /     |    |     \
  */
 class InnerNode extends BPlusNode {
     // Metadata about the B+ tree that this node belongs to.
@@ -46,13 +46,14 @@ class InnerNode extends BPlusNode {
     private List<Long> children;
 
     // Constructors ////////////////////////////////////////////////////////////
+
     /**
      * Construct a brand new inner node.
      */
     InnerNode(BPlusTreeMetadata metadata, BufferManager bufferManager, List<DataBox> keys,
               List<Long> children, LockContext treeContext) {
         this(metadata, bufferManager, bufferManager.fetchNewPage(treeContext, metadata.getPartNum()),
-             keys, children, treeContext);
+                keys, children, treeContext);
     }
 
     /**
@@ -81,41 +82,130 @@ class InnerNode extends BPlusNode {
     @Override
     public LeafNode get(DataBox key) {
         // TODO(proj2): implement
-
-        return null;
+        // 因为B+树在查找时,索引到中间结点时会按个去查找匹配,如果我们在查找前先过滤掉比我们大的结点,这样可以减少一些查找成本
+        int index = numLessThanEqual(key, keys);
+        // 调用内部结点 根据页码找下一结点的方法
+        BPlusNode child = getChild(index);
+        // 内部节点则返回 child get 去自动找到叶子结点
+        return child.get(key);
     }
 
     // See BPlusNode.getLeftmostLeaf.
     @Override
     public LeafNode getLeftmostLeaf() {
-        assert(children.size() > 0);
+        assert (children.size() > 0);
         // TODO(proj2): implement
-
-        return null;
+        //修改类型,定义起点
+        BPlusNode child = this;
+        // 每次循环取最左边的结点来查找,靠循环递归下去
+        while (child.getClass() != LeafNode.class) {
+            child = ((InnerNode) child).getChild(0);
+        }
+        return (LeafNode) child;
     }
 
     // See BPlusNode.put.
     @Override
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
         // TODO(proj2): implement
+        int index = InnerNode.numLessThanEqual(key, keys);
+        BPlusNode child = getChild(index);
+        Optional<Pair<DataBox, Long>> o = child.put(key, rid);
 
-        return Optional.empty();
+        // 如果不需要分裂就直接跳出递归
+        if (!o.isPresent()) {
+            return Optional.empty();
+        }
+
+        // 下面开始分裂的逻辑
+        Pair<DataBox, Long> p = o.get();
+        keys.add(index, p.getFirst());
+        children.add(index + 1, p.getSecond());
+
+        // 获得阶数,溢出判断
+        int d = metadata.getOrder();
+        if (keys.size() <= 2 * d) {
+            sync();
+            return Optional.empty();
+        }
+
+        // 如果结点溢出则进行下面的分裂操作
+        assert (keys.size() == 2 * d + 1);
+        List<DataBox> leftKeys = keys.subList(0, d);
+        DataBox middleKey = keys.get(d);
+        List<DataBox> rightKeys = keys.subList(d + 1, 2 * d + 1);
+        List<Long> leftChildren = children.subList(0, d + 1);
+        List<Long> rightChildren = children.subList(d + 1, 2 * d + 2);
+
+        // 创建叶子结点的右结点
+        InnerNode n = new InnerNode(metadata, bufferManager, rightKeys, rightChildren, treeContext);
+        Long pageNum = n.getPage().getPageNum();
+
+        //更新左结点
+        this.keys = leftKeys;
+        this.children = leftChildren;
+        sync();
+
+        //返回右结点
+        return Optional.of(new Pair<>(middleKey, pageNum));
     }
 
     // See BPlusNode.bulkLoad.
     @Override
     public Optional<Pair<DataBox, Long>> bulkLoad(Iterator<Pair<DataBox, RecordId>> data,
-            float fillFactor) {
+                                                  float fillFactor) {
         // TODO(proj2): implement
+        int d = metadata.getOrder();
+        while (data.hasNext() && keys.size() <= 2 * d + 1) {
+            BPlusNode rightChild = getChild(children.size() - 1);
+            Optional<Pair<DataBox, Long>> o = rightChild.bulkLoad(data, fillFactor);
+            if (o.isPresent()) {
+                Pair<DataBox, Long> p = o.get();
+                keys.add(keys.size(), p.getFirst());
+                children.add(children.size(), p.getSecond());
+            }
+        }
 
-        return Optional.empty();
+        // 溢出判断
+        if (!data.hasNext()) {
+            sync();
+            return Optional.empty();
+        }
+
+        // 如果结点溢出则进行下面的分裂操作
+        BPlusNode rightChild = getChild(children.size() - 1);
+        Optional<Pair<DataBox, Long>> o = rightChild.bulkLoad(data, fillFactor);
+        if (o.isPresent()) {
+            Pair<DataBox, Long> p = o.get();
+            keys.add(keys.size(), p.getFirst());
+            children.add(children.size(), p.getSecond());
+        }
+        List<DataBox> leftKeys = keys.subList(0, d);
+        DataBox middleKey = keys.get(d);
+        List<DataBox> rightKeys = keys.subList(d + 1, 2 * d + 1);
+        List<Long> leftChildren = children.subList(0, d + 1);
+        List<Long> rightChildren = children.subList(d + 1, 2 * d + 2);
+
+        // 创建叶子结点的右结点
+        InnerNode n = new InnerNode(metadata, bufferManager, rightKeys, rightChildren, treeContext);
+        Long pageNum = n.getPage().getPageNum();
+
+        //更新左结点
+        this.keys = leftKeys;
+        this.children = leftChildren;
+        sync();
+
+        //返回右结点
+        return Optional.of(new Pair<>(middleKey, pageNum));
     }
 
     // See BPlusNode.remove.
     @Override
     public void remove(DataBox key) {
         // TODO(proj2): implement
-
+        LeafNode targetChild = get(key);
+        targetChild.remove(key);
+        sync();
         return;
     }
 
@@ -154,6 +244,7 @@ class InnerNode extends BPlusNode {
     List<Long> getChildren() {
         return children;
     }
+
     /**
      * Returns the largest number d such that the serialization of an InnerNode
      * with 2d keys will fit on a single page.
@@ -189,25 +280,25 @@ class InnerNode extends BPlusNode {
      * Given a list ys sorted in ascending order, numLessThanEqual(x, ys) returns
      * the number of elements in ys that are less than or equal to x. For
      * example,
-     *
-     *   numLessThanEqual(0, Arrays.asList(1, 2, 3, 4, 5)) == 0
-     *   numLessThanEqual(1, Arrays.asList(1, 2, 3, 4, 5)) == 1
-     *   numLessThanEqual(2, Arrays.asList(1, 2, 3, 4, 5)) == 2
-     *   numLessThanEqual(3, Arrays.asList(1, 2, 3, 4, 5)) == 3
-     *   numLessThanEqual(4, Arrays.asList(1, 2, 3, 4, 5)) == 4
-     *   numLessThanEqual(5, Arrays.asList(1, 2, 3, 4, 5)) == 5
-     *   numLessThanEqual(6, Arrays.asList(1, 2, 3, 4, 5)) == 5
-     *
+     * <p>
+     * numLessThanEqual(0, Arrays.asList(1, 2, 3, 4, 5)) == 0
+     * numLessThanEqual(1, Arrays.asList(1, 2, 3, 4, 5)) == 1
+     * numLessThanEqual(2, Arrays.asList(1, 2, 3, 4, 5)) == 2
+     * numLessThanEqual(3, Arrays.asList(1, 2, 3, 4, 5)) == 3
+     * numLessThanEqual(4, Arrays.asList(1, 2, 3, 4, 5)) == 4
+     * numLessThanEqual(5, Arrays.asList(1, 2, 3, 4, 5)) == 5
+     * numLessThanEqual(6, Arrays.asList(1, 2, 3, 4, 5)) == 5
+     * <p>
      * This helper function is useful when we're navigating down a B+ tree and
      * need to decide which child to visit. For example, imagine an index node
      * with the following 4 keys and 5 children pointers:
-     *
-     *     +---+---+---+---+
-     *     | a | b | c | d |
-     *     +---+---+---+---+
-     *    /    |   |   |    \
-     *   0     1   2   3     4
-     *
+     * <p>
+     * +---+---+---+---+
+     * | a | b | c | d |
+     * +---+---+---+---+
+     * /    |   |   |    \
+     * 0     1   2   3     4
+     * <p>
      * If we're searching the tree for value c, then we need to visit child 3.
      * Not coincidentally, there are also 3 values less than or equal to c (i.e.
      * a, b, c).
@@ -260,11 +351,11 @@ class InnerNode extends BPlusNode {
     /**
      * An inner node on page 0 with a single key k and two children on page 1 and
      * 2 is turned into the following DOT fragment:
-     *
-     *   node0[label = "<f0>|k|<f1>"];
-     *   ... // children
-     *   "node0":f0 -> "node1";
-     *   "node0":f1 -> "node2";
+     * <p>
+     * node0[label = "<f0>|k|<f1>"];
+     * ... // children
+     * "node0":f0 -> "node1";
+     * "node0":f1 -> "node2";
      */
     @Override
     public String toDot() {
@@ -286,7 +377,7 @@ class InnerNode extends BPlusNode {
             long childPageNum = child.getPage().getPageNum();
             lines.add(child.toDot());
             lines.add(String.format("  \"node%d\":f%d -> \"node%d\";",
-                                    pageNum, i, childPageNum));
+                    pageNum, i, childPageNum));
         }
 
         return String.join("\n", lines);
@@ -345,7 +436,7 @@ class InnerNode extends BPlusNode {
         Buffer buf = page.getBuffer();
 
         byte nodeType = buf.get();
-        assert(nodeType == (byte) 0);
+        assert (nodeType == (byte) 0);
 
         List<DataBox> keys = new ArrayList<>();
         List<Long> children = new ArrayList<>();
@@ -370,8 +461,8 @@ class InnerNode extends BPlusNode {
         }
         InnerNode n = (InnerNode) o;
         return page.getPageNum() == n.page.getPageNum() &&
-               keys.equals(n.keys) &&
-               children.equals(n.children);
+                keys.equals(n.keys) &&
+                children.equals(n.children);
     }
 
     @Override
