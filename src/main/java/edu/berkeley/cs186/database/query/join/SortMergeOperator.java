@@ -20,8 +20,8 @@ public class SortMergeOperator extends JoinOperator {
                              String rightColumnName,
                              TransactionContext transaction) {
         super(prepareLeft(transaction, leftSource, leftColumnName),
-              prepareRight(transaction, rightSource, rightColumnName),
-              leftColumnName, rightColumnName, transaction, JoinType.SORTMERGE);
+                prepareRight(transaction, rightSource, rightColumnName),
+                leftColumnName, rightColumnName, transaction, JoinType.SORTMERGE);
         this.stats = this.estimateStats();
     }
 
@@ -75,22 +75,21 @@ public class SortMergeOperator extends JoinOperator {
 
     /**
      * An implementation of Iterator that provides an iterator interface for this operator.
-     *    See lecture slides.
-     *
+     * See lecture slides.
+     * <p>
      * Before proceeding, you should read and understand SNLJOperator.java
-     *    You can find it in the same directory as this file.
-     *
+     * You can find it in the same directory as this file.
+     * <p>
      * Word of advice: try to decompose the problem into distinguishable sub-problems.
-     *    This means you'll probably want to add more methods than those given (Once again,
-     *    SNLJOperator.java might be a useful reference).
-     *
+     * This means you'll probably want to add more methods than those given (Once again,
+     * SNLJOperator.java might be a useful reference).
      */
     private class SortMergeIterator implements Iterator<Record> {
         /**
-        * Some member variables are provided for guidance, but there are many possible solutions.
-        * You should implement the solution that's best for you, using any member variables you need.
-        * You're free to use these member variables, but you're not obligated to.
-        */
+         * Some member variables are provided for guidance, but there are many possible solutions.
+         * You should implement the solution that's best for you, using any member variables you need.
+         * You're free to use these member variables, but you're not obligated to.
+         */
         private Iterator<Record> leftIterator;
         private BacktrackingIterator<Record> rightIterator;
         private Record leftRecord;
@@ -140,6 +139,62 @@ public class SortMergeOperator extends JoinOperator {
          */
         private Record fetchNextRecord() {
             // TODO(proj3_part1): implement
+            if (leftRecord == null) {
+                return null;
+            }
+            while (leftRecord != null) {
+                if (!marked) {
+                    while (compare(leftRecord, rightRecord) < 0) {
+                        if (leftIterator.hasNext()) {
+                            leftRecord = leftIterator.next();
+                        } else {
+                            // 若左表已经用完，则代表join结束，直接终止
+                            leftRecord = null;
+                            return null;
+                        }
+                    }
+                    while (compare(leftRecord, rightRecord) > 0) {
+                        if (rightIterator.hasNext()) {
+                            rightRecord = rightIterator.next();
+                        } else {
+                            // 若右表记录恒小于左表当前记录，则代表左表自此之后的记录无法匹配，也可终止。
+                            leftRecord = null;
+                            return null;
+                        }
+                    }
+                    marked = true;
+                    rightIterator.markPrev();
+                }
+                if (compare(leftRecord, rightRecord) == 0) {
+                    Record ret = leftRecord.concat(rightRecord);
+                    if (rightIterator.hasNext()) {
+                        rightRecord = rightIterator.next();
+                    } else {
+                        // 若右表记录已经用完，则代表左表当前记录已经完成匹配，前进左表，并重置右表
+                        if (leftIterator.hasNext()) {
+                            marked = false;
+                            rightIterator.reset();
+                            rightRecord = rightIterator.next();
+                            leftRecord = leftIterator.next();
+                        } else {
+                            // 左表耗尽，停止
+                            leftRecord = null;
+                        }
+                    }
+                    return ret;
+                } else {
+                    // 左右表记录不匹配，重置右表后，重新进入查询阶段
+                    marked = false;
+                    rightIterator.reset();
+                    rightRecord = rightIterator.next();
+                    if (leftIterator.hasNext()) {
+                        leftRecord = leftIterator.next();
+                    } else {
+                        leftRecord = null;
+                        return null;
+                    }
+                }
+            }
             return null;
         }
 

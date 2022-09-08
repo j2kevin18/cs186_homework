@@ -48,7 +48,7 @@ public class SortOperator extends QueryOperator {
     @Override
     public int estimateIOCost() {
         int N = getSource().estimateStats().getNumPages();
-        double pass0Runs = Math.ceil(N / (double)numBuffers);
+        double pass0Runs = Math.ceil(N / (double) numBuffers);
         double numPasses = 1 + Math.ceil(Math.log(pass0Runs) / Math.log(numBuffers - 1));
         return (int) (2 * N * numPasses) + getSource().estimateIOCost();
     }
@@ -64,7 +64,9 @@ public class SortOperator extends QueryOperator {
     }
 
     @Override
-    public boolean materialized() { return true; }
+    public boolean materialized() {
+        return true;
+    }
 
     @Override
     public BacktrackingIterator<Record> backtrackingIterator() {
@@ -87,7 +89,12 @@ public class SortOperator extends QueryOperator {
      */
     public Run sortRun(Iterator<Record> records) {
         // TODO(proj3_part1): implement
-        return null;
+        List<Record> recordList = new ArrayList<>();
+        while (records.hasNext()) {
+            recordList.add(records.next());
+        }
+        recordList.sort(comparator);
+        return makeRun(recordList);
     }
 
     /**
@@ -95,7 +102,7 @@ public class SortOperator extends QueryOperator {
      * merging the input runs. You should use a Priority Queue (java.util.PriorityQueue)
      * to determine which record should be should be added to the output run
      * next.
-     *
+     * <p>
      * You are NOT allowed to have more than runs.size() records in your
      * priority queue at a given moment. It is recommended that your Priority
      * Queue hold Pair<Record, Integer> objects where a Pair (r, i) is the
@@ -108,7 +115,31 @@ public class SortOperator extends QueryOperator {
     public Run mergeSortedRuns(List<Run> runs) {
         assert (runs.size() <= this.numBuffers - 1);
         // TODO(proj3_part1): implement
-        return null;
+        PriorityQueue<Pair<Record, Integer>> pq = new PriorityQueue<>(new RecordPairComparator());
+        List<Iterator<Record>> iterators = new ArrayList<>();
+        // 先获取每一个排序段的迭代器
+        for (Run run : runs) {
+            iterators.add(run.iterator());
+        }
+        int i = 0;
+        // 获取每个排序段中的最小元素，并将其填入优先队列
+        for (Iterator<Record> iterator : iterators) {
+            if (iterator.hasNext()) {
+                pq.add(new Pair<>(iterator.next(), i));
+            }
+            i++;
+        }
+        List<Record> output = new ArrayList<>();
+        while (!pq.isEmpty()) {
+            Pair<Record, Integer> pair = pq.poll();
+            Record record = pair.getFirst();
+            output.add(record);
+            Iterator<Record> it = iterators.get(pair.getSecond());
+            if (it.hasNext()) {
+                pq.add(new Pair<>(it.next(), pair.getSecond()));
+            }
+        }
+        return makeRun(output);
     }
 
     /**
@@ -133,7 +164,24 @@ public class SortOperator extends QueryOperator {
      */
     public List<Run> mergePass(List<Run> runs) {
         // TODO(proj3_part1): implement
-        return Collections.emptyList();
+        List<Run> output = new ArrayList<>();
+        // 每次归并都有n-1个缓冲区用于输入，1个缓冲区用于输出
+        int runsNum = numBuffers - 1;
+        // 计算归并次数
+        int N = (int) Math.ceil(runs.size() / runsNum);
+        for (int i = 0; i < N; i++) {
+            // 划分出与缓冲区大小相同的run
+            List<Run> curRuns;
+            if ((i + 1) * runsNum > runs.size()) {
+                curRuns = runs.subList(i * runsNum, runs.size());
+            } else {
+                curRuns = runs.subList(i * runsNum, (i + 1) * runsNum);
+            }
+            // 调用归并有序排序段方法
+            Run out = mergeSortedRuns(curRuns);
+            output.add(out);
+        }
+        return output;
     }
 
     /**
@@ -149,7 +197,24 @@ public class SortOperator extends QueryOperator {
         Iterator<Record> sourceIterator = getSource().iterator();
 
         // TODO(proj3_part1): implement
-        return makeRun(); // TODO(proj3_part1): replace this!
+        List<Iterator<Record>> initialStates = new ArrayList<>();
+        while (sourceIterator.hasNext()) {
+            // 将程序划分为若干个排序段，每一个排序段的大小与缓冲区一致
+            BacktrackingIterator<Record> it = getBlockIterator(sourceIterator, getSource().getSchema(), numBuffers);
+            initialStates.add(it);
+        }
+        List<Run> runs = new ArrayList<>();
+        // 对每一个排序段进行排序
+        for (Iterator<Record> state : initialStates) {
+            Run run = sortRun(state);
+            runs.add(run);
+        }
+        // 不断归并，直到列表中只剩下唯一一个排序段
+        while (runs.size() > 1) {
+            runs = mergePass(runs);
+        }
+        assert runs.size() == 1;
+        return runs.get(0); // TODO(proj3_part1): replace this!
     }
 
     /**
