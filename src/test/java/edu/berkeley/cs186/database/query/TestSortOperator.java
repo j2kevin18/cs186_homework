@@ -1,11 +1,12 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.*;
-import edu.berkeley.cs186.database.categories.HiddenTests;
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.TestUtils;
+import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.Transaction;
 import edu.berkeley.cs186.database.categories.Proj3Part1Tests;
 import edu.berkeley.cs186.database.categories.Proj3Tests;
 import edu.berkeley.cs186.database.categories.PublicTests;
-import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.concurrency.DummyLockContext;
 import edu.berkeley.cs186.database.databox.Type;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
@@ -141,7 +142,7 @@ public class TestSortOperator {
                 count++;
             }
             assertFalse("too many records", iterator.hasNext());
-            assertEquals("too few records", 8  * 3, count);
+            assertEquals("too few records", 8 * 3, count);
         }
     }
 

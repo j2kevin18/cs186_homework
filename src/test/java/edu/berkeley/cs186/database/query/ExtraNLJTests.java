@@ -76,12 +76,12 @@ public class ExtraNLJTests {
         transaction.createTable(getSchema(), "leftTable");
         transaction.createTable(getSchema(), "rightTable");
         for (int i = 0; i < leftVals.length; i++) {
-            Record leftRecord = new Record("left", i/4 + 1, (i % 4) + 1, leftVals[i]);
+            Record leftRecord = new Record("left", i / 4 + 1, (i % 4) + 1, leftVals[i]);
             leftRecords.add(leftRecord);
             transaction.insert("leftTable", leftRecord);
         }
         for (int i = 0; i < rightVals.length; i++) {
-            Record rightRecord = new Record("right", i/4 + 1, (i % 4) + 1, rightVals[i]);
+            Record rightRecord = new Record("right", i / 4 + 1, (i % 4) + 1, rightVals[i]);
             rightRecords.add(rightRecord);
             transaction.insert("rightTable", rightRecord);
         }
@@ -92,7 +92,7 @@ public class ExtraNLJTests {
                 for (int l = 0; l < leftRecords.size(); l++) {
                     for (int r = 0; r < 4; r++) {
                         Record leftRecord = leftRecords.get(l);
-                        Record rightRecord = rightRecords.get(rp*4 + r);
+                        Record rightRecord = rightRecords.get(rp * 4 + r);
                         if (leftRecord.getValue(3).equals(rightRecord.getValue(3))) {
                             expectedRecords.add(leftRecord.concat(rightRecord));
                         }
@@ -104,8 +104,8 @@ public class ExtraNLJTests {
                 for (int rp = 0; rp < rightRecords.size() / 4; rp++) {
                     for (int l = 0; l < 4; l++) {
                         for (int r = 0; r < 4; r++) {
-                            Record leftRecord = leftRecords.get(lp*4 + l);
-                            Record rightRecord = rightRecords.get(rp*4 + r);
+                            Record leftRecord = leftRecords.get(lp * 4 + l);
+                            Record rightRecord = rightRecords.get(rp * 4 + r);
                             if (leftRecord.getValue(3).equals(rightRecord.getValue(3))) {
                                 expectedRecords.add(leftRecord.concat(rightRecord));
                             }
@@ -162,7 +162,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {0, 0, 0, 0};
             int[] rightVals = {0, 0, 0, 0};
@@ -185,7 +185,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -233,7 +233,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {1, 1, 2, 2};
             int[] rightVals = {1, 1, 2, 2};
@@ -258,7 +258,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -306,7 +306,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {1, 1, 2, 2};
             int[] rightVals = {2, 2, 1, 1};
@@ -331,7 +331,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -383,7 +383,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {0, 0, 0, 0, 0, 0, 0, 0};
             int[] rightVals = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -408,7 +408,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -459,7 +459,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {1, 1, 1, 1, 2, 2, 2, 2};
             int[] rightVals = {1, 1, 1, 1, 2, 2, 2, 2};
@@ -484,7 +484,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -546,7 +546,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {1, 1, 1, 1, 2, 2, 2, 2};
             int[] rightVals = {2, 2, 2, 2, 1, 1, 1, 1};
@@ -571,7 +571,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -633,7 +633,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {1, 1, 2, 2, 2, 2, 1, 1};
             int[] rightVals = {1, 1, 2, 2, 2, 2, 1, 1};
@@ -658,7 +658,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -720,7 +720,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(5); // B=5
             int[] leftVals = {1, 1, 2, 2, 2, 2, 1, 1};
             int[] rightVals = {2, 2, 1, 1, 1, 1, 2, 2};
@@ -745,7 +745,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -797,7 +797,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(4); // B=4
             int[] leftVals = {0, 0, 0, 0, 0, 0, 0, 0};
             int[] rightVals = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -822,7 +822,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -873,7 +873,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(4); // B=4
             int[] leftVals = {1, 1, 1, 1, 2, 2, 2, 2};
             int[] rightVals = {1, 1, 1, 1, 2, 2, 2, 2};
@@ -898,7 +898,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -960,7 +960,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(4); // B=4
             int[] leftVals = {1, 1, 1, 1, 2, 2, 2, 2};
             int[] rightVals = {2, 2, 2, 2, 1, 1, 1, 1};
@@ -985,7 +985,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -1047,7 +1047,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(4); // B=4
             int[] leftVals = {1, 1, 2, 2, 2, 2, 1, 1};
             int[] rightVals = {1, 1, 2, 2, 2, 2, 1, 1};
@@ -1072,7 +1072,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -1134,7 +1134,7 @@ public class ExtraNLJTests {
         //
         // (x's represent where we expect to see matches)
 
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             d.setWorkMem(4); // B=4
             int[] leftVals = {1, 1, 2, 2, 2, 2, 1, 1};
             int[] rightVals = {2, 2, 1, 1, 1, 1, 2, 2};
@@ -1159,7 +1159,7 @@ public class ExtraNLJTests {
                 problems.append("You're outputting more than the expected number of records.\n");
                 problems.append("Here are up to ten of the extra records:\n");
                 int i = 0;
-                while(i < 10 && outputIterator.hasNext()) {
+                while (i < 10 && outputIterator.hasNext()) {
                     problems.append(outputIterator.next().toString() + "\n");
                     i++;
                 }
@@ -1195,7 +1195,7 @@ public class ExtraNLJTests {
                     String prefix;
                     if (j == 4) prefix = " Left  ";
                     else if (j == 3) prefix = " Page  ";
-                    else if (j == 2) prefix = " #"+(i)+"    ";
+                    else if (j == 2) prefix = " #" + (i) + "    ";
                     else prefix = "       ";
                     prefix += leftRecords.get(getIndex(i, j)).getValue(3).getInt() + " ";
                     rows.add(createRow(prefix));
@@ -1216,12 +1216,12 @@ public class ExtraNLJTests {
 
             this.expected = new boolean[leftPages * 4][rightPages * 4];
             this.actual = new boolean[leftPages * 4][rightPages * 4];
-            for (Record r: expectedOutput) {
+            for (Record r : expectedOutput) {
                 int leftPage = r.getValue(1).getInt();
                 int leftRecord = r.getValue(2).getInt();
                 int rightPage = r.getValue(5).getInt();
                 int rightRecord = r.getValue(6).getInt();
-                this.expected[getIndex(leftPage,leftRecord)][getIndex(rightPage, rightRecord)] = true;
+                this.expected[getIndex(leftPage, leftRecord)][getIndex(rightPage, rightRecord)] = true;
             }
         }
 
@@ -1252,13 +1252,14 @@ public class ExtraNLJTests {
             StringBuilder b2 = new StringBuilder("         ");
             StringBuilder b3 = new StringBuilder("         ");
             for (int i = 0; i < this.rightPages; i++) {
-                int v1 = rightRecords.get(i*4).getValue(3).getInt();
-                int v2 = rightRecords.get(i*4+1).getValue(3).getInt();
-                int v3 = rightRecords.get(i*4+2).getValue(3).getInt();
-                int v4 = rightRecords.get(i*4+3).getValue(3).getInt();;
+                int v1 = rightRecords.get(i * 4).getValue(3).getInt();
+                int v2 = rightRecords.get(i * 4 + 1).getValue(3).getInt();
+                int v3 = rightRecords.get(i * 4 + 2).getValue(3).getInt();
+                int v4 = rightRecords.get(i * 4 + 3).getValue(3).getInt();
+                ;
                 b.append(String.format("  %d %d %d %d  ", v1, v2, v3, v4));
                 b2.append("  Right    ");
-                b3.append("  Page #" + (i+1) + "  ");
+                b3.append("  Page #" + (i + 1) + "  ");
             }
             return Arrays.asList(b.toString(), b2.toString(), b3.toString());
         }
@@ -1292,16 +1293,16 @@ public class ExtraNLJTests {
                     boolean e = this.expected[l][r];
                     problem |= a != e;
                     if (e) {
-                        if(a) this.fullRun[l][r] = "x";
-                        else  this.fullRun[l][r] = "?";
+                        if (a) this.fullRun[l][r] = "x";
+                        else this.fullRun[l][r] = "?";
                     } else {
-                        if(a) this.fullRun[l][r] = "+";
+                        if (a) this.fullRun[l][r] = "+";
                         else this.fullRun[l][r] = " ";
                     }
                 }
             }
 
-            for (Record r: this.repeats) {
+            for (Record r : this.repeats) {
                 int leftIndex = getIndex(r.getValue(1).getInt(), r.getValue(2).getInt());
                 int rightIndex = getIndex(r.getValue(5).getInt(), r.getValue(6).getInt());
                 this.fullRun[leftIndex][rightIndex] = "r";
@@ -1310,7 +1311,7 @@ public class ExtraNLJTests {
         }
 
         public void add(Record expectedRecord, Record actualRecord, int num) {
-            assertEquals("Your output records should have 8 values. Did you join the left and right records properly?",8, actualRecord.size());
+            assertEquals("Your output records should have 8 values. Did you join the left and right records properly?", 8, actualRecord.size());
             int actualLeftPage = actualRecord.getValue(1).getInt();
             int actualLeftRecord = actualRecord.getValue(2).getInt();
             int actualRightPage = actualRecord.getValue(5).getInt();
@@ -1328,7 +1329,7 @@ public class ExtraNLJTests {
 
             if (!expectedRecord.equals(actualRecord)) {
                 if (!this.isMismatched()) {
-                    this.mismatchedNum = num+1;
+                    this.mismatchedNum = num + 1;
                     this.firstMismatch[expectedLeftIndex][expectedRightIndex] = "E";
                     this.firstMismatch[actualLeftIndex][actualRightIndex] = "A";
                 }
@@ -1345,7 +1346,7 @@ public class ExtraNLJTests {
         }
 
         private int getIndex(int pageNum, int recordNum) {
-            return (pageNum-1)*4 + recordNum-1;
+            return (pageNum - 1) * 4 + recordNum - 1;
         }
 
         public String getProblems() {
@@ -1361,8 +1362,9 @@ public class ExtraNLJTests {
                 b.append(" - A was the record that you actually yielded\n\n");
             }
 
-            if(computeFullRun()) {
-                b.append("== MISSING OR EXTRA RECORDS == \n");;
+            if (computeFullRun()) {
+                b.append("== MISSING OR EXTRA RECORDS == \n");
+                ;
                 b.append(visualizeFullRun());
                 b.append("\n");
                 b.append("You either excluded or included records when you shouldn't have. Key:\n");
@@ -1376,7 +1378,7 @@ public class ExtraNLJTests {
             if (this.repeats.size() > 0) {
                 b.append("== REPEATS ==\n");
                 b.append("You yielded the following records multiple times:\n");
-                for (Record repeat: this.repeats) {
+                for (Record repeat : this.repeats) {
                     b.append(repeat.toString() + "\n");
                 }
                 b.append("\n");

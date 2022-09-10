@@ -1,8 +1,11 @@
 package edu.berkeley.cs186.database.concurrency;
 
-import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.TimeoutScaling;
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.TransactionContext;
+import edu.berkeley.cs186.database.categories.Proj4Part2Tests;
+import edu.berkeley.cs186.database.categories.Proj4Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
+import edu.berkeley.cs186.database.categories.SystemTests;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @Category({Proj4Tests.class, Proj4Part2Tests.class})
 public class TestLockUtil {
@@ -172,7 +174,8 @@ public class TestLockUtil {
          * IX on database and IX on table1 as well.
          */
         lockManager.startLog();
-        LockUtil.ensureSufficientLockHeld(pageContexts[3], LockType.X);;
+        LockUtil.ensureSufficientLockHeld(pageContexts[3], LockType.X);
+        ;
         assertEquals(Arrays.asList(
                 "acquire 0 database IX",
                 "acquire 0 database/table1 IX",

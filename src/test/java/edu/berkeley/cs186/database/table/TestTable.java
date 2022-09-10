@@ -148,7 +148,7 @@ public class TestTable {
     }
 
     @Test
-    public void testReloadTable()  {
+    public void testReloadTable() {
         // We add 42 to make sure we have some incomplete pages.
         int numRecords = table.getNumRecordsPerPage() * 2 + 42;
 

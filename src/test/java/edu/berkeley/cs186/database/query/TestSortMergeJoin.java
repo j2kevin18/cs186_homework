@@ -4,7 +4,6 @@ import edu.berkeley.cs186.database.Database;
 import edu.berkeley.cs186.database.TestUtils;
 import edu.berkeley.cs186.database.TimeoutScaling;
 import edu.berkeley.cs186.database.Transaction;
-import edu.berkeley.cs186.database.categories.HiddenTests;
 import edu.berkeley.cs186.database.categories.Proj3Part1Tests;
 import edu.berkeley.cs186.database.categories.Proj3Tests;
 import edu.berkeley.cs186.database.categories.PublicTests;
@@ -110,7 +109,7 @@ public class TestSortMergeJoin {
     @Category(PublicTests.class)
     public void testSimpleSortMergeJoin() {
         d.setWorkMem(5); // B=5
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             setSourceOperators(
                     TestUtils.createSourceWithAllTypes(100),
                     TestUtils.createSourceWithAllTypes(100),
@@ -144,9 +143,9 @@ public class TestSortMergeJoin {
 
     @Test
     @Category(PublicTests.class)
-    public void testSortMergeJoinUnsortedInputs()  {
+    public void testSortMergeJoinUnsortedInputs() {
         d.setWorkMem(3); // B=3
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "leftTable");
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "rightTable");
             pinPage(1, 1);

@@ -1,7 +1,6 @@
 package edu.berkeley.cs186.database.index;
 
 import edu.berkeley.cs186.database.TimeoutScaling;
-import edu.berkeley.cs186.database.categories.HiddenTests;
 import edu.berkeley.cs186.database.categories.Proj2Tests;
 import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.categories.SystemTests;
@@ -26,7 +25,10 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -39,7 +41,7 @@ public class TestLeafNode {
     // 1 second max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     private static DataBox d0 = new IntDataBox(0);
     private static DataBox d1 = new IntDataBox(1);
@@ -71,7 +73,7 @@ public class TestLeafNode {
     // Helpers /////////////////////////////////////////////////////////////////
     private void setBPlusTreeMetadata(Type keySchema, int order) {
         this.metadata = new BPlusTreeMetadata("test", "col", keySchema, order,
-                                              0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
+                0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
     }
 
     private LeafNode getEmptyLeaf(Optional<Long> rightSibling) {

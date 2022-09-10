@@ -2,7 +2,6 @@ package edu.berkeley.cs186.database.cli;
 
 import edu.berkeley.cs186.database.Database;
 import edu.berkeley.cs186.database.concurrency.LockManager;
-import edu.berkeley.cs186.database.memory.ClockEvictionPolicy;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -18,13 +17,13 @@ import java.net.Socket;
  * means in the best-case scenario a malicious entity can thrash your disk to
  * their heart's content, and in worse cases populate your disk with
  * malicious files.
- *
+ * <p>
  * - Former TA who doesn't want to become a 161 case study
- *
+ * <p>
  * To use RookieDB in Server mode, run the main function in this file. This
  * will start a server that waits on port 18600 on your local machine. Then,
  * run `python client.py` in the root of the project directory (needs Python 3)
- *
+ * <p>
  * Alternatively, use a utility like `netcat` or `nc` to open a connection, i.e.:
  * - `netcat localhost 18600`
  * - `nc localhost 18600` (depending on how netcat is installed)
@@ -39,7 +38,7 @@ public class Server {
         // Note: you'll probably want to complete Project 4 before
         // attempting to run this.
         Database db = new Database("demo", 25, new LockManager());
-        
+
         // Use the following after completing project 5 (recovery)
         // Database db = new Database("demo", 25, new LockManager(), new ClockEvictionPolicy(), true);
 

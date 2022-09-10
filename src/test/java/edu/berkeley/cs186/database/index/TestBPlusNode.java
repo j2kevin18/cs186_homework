@@ -40,7 +40,7 @@ public class TestBPlusNode {
     // 1 seconds max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     @Before
     public void setup() {
@@ -50,7 +50,7 @@ public class TestBPlusNode {
                 new ClockEvictionPolicy());
         this.treeContext = new DummyLockContext();
         this.metadata = new BPlusTreeMetadata("test", "col", Type.intType(), ORDER,
-                                              0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
+                0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
     }
 
     @After
@@ -72,7 +72,7 @@ public class TestBPlusNode {
             leafRids.add(new RecordId(i, (short) i));
         }
         LeafNode leaf = new LeafNode(metadata, bufferManager, leafKeys, leafRids, Optional.of(42L),
-                                     treeContext);
+                treeContext);
 
         // Inner node.
         List<DataBox> innerKeys = new ArrayList<>();
@@ -83,7 +83,7 @@ public class TestBPlusNode {
         }
         innerChildren.add((long) 2 * ORDER);
         InnerNode inner = new InnerNode(metadata, bufferManager, innerKeys, innerChildren,
-                                        treeContext);
+                treeContext);
 
         long leafPageNum = leaf.getPage().getPageNum();
         long innerPageNum = inner.getPage().getPageNum();

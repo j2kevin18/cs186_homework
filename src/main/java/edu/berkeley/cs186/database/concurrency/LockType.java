@@ -22,8 +22,22 @@ public enum LockType {
             throw new NullPointerException("null lock type");
         }
         // TODO(proj4_part1): implement
-
-        return false;
+        if (a == LockType.NL || b == LockType.NL) {
+            return true;
+        }
+        if (a == LockType.X || b == LockType.X) {
+            return false;
+        }
+        if ((a == LockType.IS || b == LockType.IS)) {
+            return true;
+        }
+        if ((a == LockType.SIX || b == LockType.SIX)) {
+            return false;
+        }
+        if ((a == LockType.S && b == LockType.IX) || (a == LockType.IX && b == LockType.S)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -35,13 +49,20 @@ public enum LockType {
             throw new NullPointerException("null lock type");
         }
         switch (a) {
-        case S: return IS;
-        case X: return IX;
-        case IS: return IS;
-        case IX: return IX;
-        case SIX: return IX;
-        case NL: return NL;
-        default: throw new UnsupportedOperationException("bad lock type");
+            case S:
+                return IS;
+            case X:
+                return IX;
+            case IS:
+                return IS;
+            case IX:
+                return IX;
+            case SIX:
+                return IX;
+            case NL:
+                return NL;
+            default:
+                throw new UnsupportedOperationException("bad lock type");
         }
     }
 
@@ -54,8 +75,7 @@ public enum LockType {
             throw new NullPointerException("null lock type");
         }
         // TODO(proj4_part1): implement
-
-        return false;
+        return substitutable(parentLockType, parentLock(childLockType));
     }
 
     /**
@@ -63,14 +83,33 @@ public enum LockType {
      * requiring another lock (e.g. an S lock can be substituted with
      * an X lock, because an X lock allows the transaction to do everything
      * the S lock allowed it to do).
+     * <p>
+     * student j2kevin18: X > SIX > S > IX > IS > UL
      */
     public static boolean substitutable(LockType substitute, LockType required) {
         if (required == null || substitute == null) {
             throw new NullPointerException("null lock type");
         }
         // TODO(proj4_part1): implement
-
-        return false;
+        if (required == substitute) {
+            return true;
+        }
+        if (required == LockType.X) {
+            return false;
+        }
+        if (required == LockType.SIX && LockType.X != substitute) {
+            return false;
+        }
+        if (required == LockType.S && LockType.SIX != substitute && LockType.X != substitute) {
+            return false;
+        }
+        if (required == LockType.IX && (substitute == LockType.IS || substitute == LockType.NL)) {
+            return false;
+        }
+        if (required == LockType.IS && substitute == LockType.NL) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -83,13 +122,20 @@ public enum LockType {
     @Override
     public String toString() {
         switch (this) {
-        case S: return "S";
-        case X: return "X";
-        case IS: return "IS";
-        case IX: return "IX";
-        case SIX: return "SIX";
-        case NL: return "NL";
-        default: throw new UnsupportedOperationException("bad lock type");
+            case S:
+                return "S";
+            case X:
+                return "X";
+            case IS:
+                return "IS";
+            case IX:
+                return "IX";
+            case SIX:
+                return "SIX";
+            case NL:
+                return "NL";
+            default:
+                throw new UnsupportedOperationException("bad lock type");
         }
     }
 }

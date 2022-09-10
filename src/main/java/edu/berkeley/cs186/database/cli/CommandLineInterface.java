@@ -9,8 +9,6 @@ import edu.berkeley.cs186.database.cli.parser.ParseException;
 import edu.berkeley.cs186.database.cli.parser.RookieParser;
 import edu.berkeley.cs186.database.cli.parser.TokenMgrError;
 import edu.berkeley.cs186.database.cli.visitor.StatementListVisitor;
-import edu.berkeley.cs186.database.concurrency.LockManager;
-import edu.berkeley.cs186.database.memory.ClockEvictionPolicy;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.Table;
@@ -25,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CommandLineInterface {
     private static final String MASCOT = "\n\\|/  ___------___\n \\__|--%s______%s--|\n    |  %-9s |\n     ---______---\n";
-    private static final int[] VERSION = { 1, 8, 6 }; // {major, minor, build}
+    private static final int[] VERSION = {1, 8, 6}; // {major, minor, build}
     private static final String LABEL = "fa22";
 
     private InputStream in;
@@ -36,10 +34,10 @@ public class CommandLineInterface {
     public static void main(String args[]) throws IOException {
         // Basic database for project 0 through 3
         Database db = new Database("demo", 25);
-        
+
         // Use the following after completing project 4 (locking)
         // Database db = new Database("demo", 25, new LockManager());
-        
+
         // Use the following after completing project 5 (recovery)
         // Database db = new Database("demo", 25, new LockManager(), new ClockEvictionPolicy(), true);
 
@@ -197,8 +195,8 @@ public class CommandLineInterface {
             }
         } else {
             throw new IllegalArgumentException(String.format(
-                "`%s` is not a valid metacommand",
-                cmd
+                    "`%s` is not a valid metacommand",
+                    cmd
             ));
         }
     }
@@ -211,7 +209,7 @@ public class CommandLineInterface {
     private static List<String> startupMessages = Arrays
             .asList("Speaking with the buffer manager", "Saying grace hash",
                     "Parallelizing parking spaces", "Bulk loading exam preparations",
-                    "Declaring functional independence", "Maintaining long distance entity-relationships" );
+                    "Declaring functional independence", "Maintaining long distance entity-relationships");
 
     private static List<String> startupProblems = Arrays
             .asList("Rebuilding air quality index", "Extinguishing B+ forest fires",
